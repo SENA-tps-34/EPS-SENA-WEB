@@ -9,3 +9,51 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model Medico {
+  id        Int    @id @default(autoincrement())
+  nombres   String
+  apellidos String
+  Cita      Cita[]
+}
+
+model Consultorio {
+  numero Int    @id @default(autoincrement())
+  nombre String
+  Cita   Cita[]
+}
+
+model Paciente {
+  id              Int           @id @default(autoincrement())
+  nombres         String
+  apellidos       String
+  fechaNacimiento String
+  sexo            String        @default("indefinido")
+  Cita            Cita[]
+  Tratamiento     Tratamiento[]
+}
+
+model Cita {
+  numero            Int         @id @default(autoincrement())
+  fecha             String
+  hora              String
+  paciente          Paciente    @relation(fields: [pacienteId], references: [id])
+  pacienteId        Int
+  medico            Medico      @relation(fields: [medicoId], references: [id])
+  medicoId          Int
+  consultorio       Consultorio @relation(fields: [consultorioNumero], references: [numero])
+  consultorioNumero Int
+  estado            String
+  observaciones     String?
+}
+
+model Tratamiento {
+  numero        Int      @id @default(autoincrement())
+  fechaAsignado String
+  descripcion   String
+  fechaInicio   String
+  fechaFin      String
+  observaciones String?
+  paciente      Paciente @relation(fields: [pacienteId], references: [id])
+  pacienteId    Int
+}

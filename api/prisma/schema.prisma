@@ -11,49 +11,51 @@ datasource db {
 }
 
 model Medico {
-  id        Int    @id @default(autoincrement())
-  nombres   String
-  apellidos String
-  Cita      Cita[]
+  identificacion Int    @id
+  nombres        String
+  apellidos      String
+  citas          Cita[]
 }
 
 model Consultorio {
   numero Int    @id @default(autoincrement())
   nombre String
-  Cita   Cita[]
+  citas  Cita[]
 }
 
 model Paciente {
-  id              Int           @id @default(autoincrement())
+  identificacion  Int           @id
   nombres         String
   apellidos       String
   fechaNacimiento String
   sexo            String        @default("indefinido")
-  Cita            Cita[]
-  Tratamiento     Tratamiento[]
+  citas           Cita[]
+  tratamientos    Tratamiento[]
 }
 
 model Cita {
-  numero            Int         @id @default(autoincrement())
-  fecha             String
-  hora              String
-  paciente          Paciente    @relation(fields: [pacienteId], references: [id])
-  pacienteId        Int
-  medico            Medico      @relation(fields: [medicoId], references: [id])
-  medicoId          Int
-  consultorio       Consultorio @relation(fields: [consultorioNumero], references: [numero])
-  consultorioNumero Int
-  estado            String
-  observaciones     String?
+  numero        Int     @id @default(autoincrement())
+  fecha         String
+  hora          String
+  pacienteId    Int
+  medicoId      Int
+  consultorioId Int
+  estado        String
+  observaciones String?
+
+  paciente    Paciente    @relation(fields: [pacienteId], references: [identificacion])
+  medico      Medico      @relation(fields: [medicoId], references: [identificacion])
+  consultorio Consultorio @relation(fields: [consultorioId], references: [numero])
 }
 
 model Tratamiento {
-  numero        Int      @id @default(autoincrement())
+  numero        Int     @id @default(autoincrement())
   fechaAsignado String
   descripcion   String
   fechaInicio   String
   fechaFin      String
   observaciones String?
-  paciente      Paciente @relation(fields: [pacienteId], references: [id])
   pacienteId    Int
+
+  paciente Paciente @relation(fields: [pacienteId], references: [identificacion])
 }

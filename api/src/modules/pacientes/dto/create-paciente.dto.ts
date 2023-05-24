@@ -3,7 +3,7 @@ import { SEXOS, Sexo } from '../entities/paciente.entity'
 
 export class CreatePacienteDto {
   @IsPositive()
-  readonly id: number
+  readonly identificacion: number
 
   @IsString()
   @IsNotEmpty()

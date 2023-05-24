@@ -16,7 +16,7 @@ export class CreateCitaDto {
   readonly medicoId: number
 
   @IsPositive()
-  readonly consultorioNumero: number
+  readonly consultorioId: number
 
   @IsString()
   @IsNotEmpty()

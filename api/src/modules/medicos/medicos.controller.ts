@@ -1,34 +1,66 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  NotFoundException,
+} from '@nestjs/common'
 import { MedicosService } from './medicos.service'
 import { CreateMedicoDto } from './dto/create-medico.dto'
 import { UpdateMedicoDto } from './dto/update-medico.dto'
+import { NoContentException } from 'src/common/exceptions'
 
 @Controller('medicos')
 export class MedicosController {
   constructor(private readonly medicosService: MedicosService) {}
 
   @Post()
-  create(@Body() createMedicoDto: CreateMedicoDto) {
-    return this.medicosService.create(createMedicoDto)
+  async create(@Body() createMedicoDto: CreateMedicoDto) {
+    return await this.medicosService.create(createMedicoDto)
   }
 
   @Get()
-  findAll() {
-    return this.medicosService.findAll()
+  async findAll() {
+    const medicos = await this.medicosService.findAll()
+
+    if (medicos.length === 0) {
+      throw new NoContentException('No hay medicos registrados')
+    }
+
+    return medicos
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.medicosService.findOne(+id)
+  @Get(':identificacion')
+  async findOne(@Param('identificacion', ParseIntPipe) id: number) {
+    const medico = await this.medicosService.findOne(id)
+
+    if (!medico) {
+      throw new NotFoundException('No se encontró el medico')
+    }
+
+    return medico
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMedicoDto: UpdateMedicoDto) {
-    return this.medicosService.update(+id, updateMedicoDto)
+  @Patch(':identificacion')
+  async update(
+    @Param('identificacion', ParseIntPipe) id: number,
+    @Body() updateMedicoDto: UpdateMedicoDto
+  ) {
+    return await this.medicosService.update(id, updateMedicoDto)
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.medicosService.remove(+id)
+  @Delete(':identificacion')
+  async remove(@Param('identificacion', ParseIntPipe) id: number) {
+    const removedMedico = await this.medicosService.remove(id)
+
+    if (!removedMedico) {
+      throw new NotFoundException('No se encontró el medico')
+    }
+
+    return removedMedico
   }
 }

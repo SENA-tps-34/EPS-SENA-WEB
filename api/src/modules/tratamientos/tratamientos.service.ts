@@ -1,26 +1,37 @@
 import { Injectable } from '@nestjs/common'
 import { CreateTratamientoDto } from './dto/create-tratamiento.dto'
 import { UpdateTratamientoDto } from './dto/update-tratamiento.dto'
+import { PrismaService } from '../database/prisma.service'
 
 @Injectable()
 export class TratamientosService {
-  create(createTratamientoDto: CreateTratamientoDto) {
-    return 'This action adds a new tratamiento'
+  constructor(private prisma: PrismaService) {}
+
+  async create(createTratamientoDto: CreateTratamientoDto) {
+    return await this.prisma.tratamiento.create({ data: createTratamientoDto })
   }
 
-  findAll() {
-    return `This action returns all tratamientos`
+  async findAll() {
+    return await this.prisma.tratamiento.findMany({
+      include: { paciente: true },
+    })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tratamiento`
+  async findOne(id: number) {
+    return await this.prisma.tratamiento.findUnique({
+      where: { numero: id },
+      include: { paciente: true },
+    })
   }
 
-  update(id: number, updateTratamientoDto: UpdateTratamientoDto) {
-    return `This action updates a #${id} tratamiento`
+  async update(id: number, updateTratamientoDto: UpdateTratamientoDto) {
+    return await this.prisma.tratamiento.update({
+      where: { numero: id },
+      data: updateTratamientoDto,
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tratamiento`
+  async remove(id: number) {
+    return await this.prisma.tratamiento.delete({ where: { numero: id } })
   }
 }

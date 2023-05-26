@@ -1,26 +1,41 @@
 import { Injectable } from '@nestjs/common'
 import { CreateConsultorioDto } from './dto/create-consultorio.dto'
 import { UpdateConsultorioDto } from './dto/update-consultorio.dto'
+import { PrismaService } from '../database/prisma.service'
 
 @Injectable()
 export class ConsultoriosService {
-  create(createConsultorioDto: CreateConsultorioDto) {
-    return 'This action adds a new consultorio'
+  constructor(private prisma: PrismaService) {}
+
+  async create(createConsultorioDto: CreateConsultorioDto) {
+    return await this.prisma.consultorio.create({ data: createConsultorioDto })
   }
 
-  findAll() {
-    return `This action returns all consultorios`
+  async findAll() {
+    return await this.prisma.consultorio.findMany({
+      include: {
+        citas: false,
+      },
+    })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} consultorio`
+  async findOne(id: number) {
+    return await this.prisma.consultorio.findUnique({
+      where: { numero: id },
+      include: {
+        citas: true,
+      },
+    })
   }
 
-  update(id: number, updateConsultorioDto: UpdateConsultorioDto) {
-    return `This action updates a #${id} consultorio`
+  async update(id: number, updateConsultorioDto: UpdateConsultorioDto) {
+    return await this.prisma.consultorio.update({
+      where: { numero: id },
+      data: updateConsultorioDto,
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} consultorio`
+  async remove(id: number) {
+    return await this.prisma.consultorio.delete({ where: { numero: id } })
   }
 }

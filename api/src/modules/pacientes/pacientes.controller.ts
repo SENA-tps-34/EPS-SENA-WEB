@@ -1,34 +1,66 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  NotFoundException,
+} from '@nestjs/common'
 import { PacientesService } from './pacientes.service'
 import { CreatePacienteDto } from './dto/create-paciente.dto'
 import { UpdatePacienteDto } from './dto/update-paciente.dto'
+import { NoContentException } from 'src/common/exceptions'
 
 @Controller('pacientes')
 export class PacientesController {
   constructor(private readonly pacientesService: PacientesService) {}
 
   @Post()
-  create(@Body() createPacienteDto: CreatePacienteDto) {
-    return this.pacientesService.create(createPacienteDto)
+  async create(@Body() createPacienteDto: CreatePacienteDto) {
+    return await this.pacientesService.create(createPacienteDto)
   }
 
   @Get()
-  findAll() {
-    return this.pacientesService.findAll()
+  async findAll() {
+    const pacientes = await this.pacientesService.findAll()
+
+    if (pacientes.length === 0) {
+      throw new NoContentException('No hay pacientes registrados')
+    }
+
+    return pacientes
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.pacientesService.findOne(+id)
+  @Get(':identificacion')
+  async findOne(@Param('identificacion', ParseIntPipe) id: number) {
+    const paciente = await this.pacientesService.findOne(id)
+
+    if (!paciente) {
+      throw new NotFoundException('Paciente no encontrado')
+    }
+
+    return paciente
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePacienteDto: UpdatePacienteDto) {
-    return this.pacientesService.update(+id, updatePacienteDto)
+  @Patch(':identificacion')
+  async update(
+    @Param('identificacion', ParseIntPipe) id: number,
+    @Body() updatePacienteDto: UpdatePacienteDto
+  ) {
+    return await this.pacientesService.update(id, updatePacienteDto)
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.pacientesService.remove(+id)
+  @Delete(':identificacion')
+  async remove(@Param('identificacion', ParseIntPipe) id: number) {
+    const removedPaciente = await this.pacientesService.remove(id)
+
+    if (!removedPaciente) {
+      throw new NotFoundException('Paciente no encontrado')
+    }
+
+    return removedPaciente
   }
 }

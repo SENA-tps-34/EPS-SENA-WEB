@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  NotFoundException,
+} from '@nestjs/common'
 import { ConsultoriosService } from './consultorios.service'
 import { CreateConsultorioDto } from './dto/create-consultorio.dto'
 import { UpdateConsultorioDto } from './dto/update-consultorio.dto'
@@ -8,27 +18,42 @@ export class ConsultoriosController {
   constructor(private readonly consultoriosService: ConsultoriosService) {}
 
   @Post()
-  create(@Body() createConsultorioDto: CreateConsultorioDto) {
-    return this.consultoriosService.create(createConsultorioDto)
+  async create(@Body() createConsultorioDto: CreateConsultorioDto) {
+    return await this.consultoriosService.create(createConsultorioDto)
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.consultoriosService.findAll()
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.consultoriosService.findOne(+id)
+  @Get(':numero')
+  async findOne(@Param('numero', ParseIntPipe) id: number) {
+    const consultorio = this.consultoriosService.findOne(id)
+
+    if (!consultorio) {
+      throw new NotFoundException('El consultorio no existe')
+    }
+
+    return consultorio
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateConsultorioDto: UpdateConsultorioDto) {
-    return this.consultoriosService.update(+id, updateConsultorioDto)
+  @Patch(':numero')
+  async update(
+    @Param('numero', ParseIntPipe) id: number,
+    @Body() updateConsultorioDto: UpdateConsultorioDto
+  ) {
+    return await this.consultoriosService.update(id, updateConsultorioDto)
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.consultoriosService.remove(+id)
+  @Delete(':numero')
+  async remove(@Param('numero', ParseIntPipe) id: number) {
+    const consultorio = await this.consultoriosService.remove(id)
+
+    if (!consultorio) {
+      throw new NotFoundException('El consultorio no existe')
+    }
+
+    return consultorio
   }
 }
